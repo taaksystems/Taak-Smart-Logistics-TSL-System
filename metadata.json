@@ -1,0 +1,7 @@
+{
+  "name": "Taak Smart Logistics (TSL)",
+  "description": "A comprehensive Transport Management System integrating real-time mapping and AI-driven route optimization.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
