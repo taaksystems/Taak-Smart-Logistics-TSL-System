@@ -14,7 +14,6 @@ interface FleetViewProps {
 const FleetView: React.FC<FleetViewProps> = ({ vehicles, maintenanceRecords, onViewReport, onAddVehicle, onDeleteVehicle, onClose }) => {
   const [activeTab, setActiveTab] = useState<'registry' | 'maintenance' | 'fuel'>('registry');
   const [isAdding, setIsAdding] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   
   // Delete State
   const [deleteModal, setDeleteModal] = useState<{isOpen: boolean, vehicleId: string | null}>({ isOpen: false, vehicleId: null });
@@ -82,13 +81,6 @@ const FleetView: React.FC<FleetViewProps> = ({ vehicles, maintenanceRecords, onV
           setPasscodeError('Incorrect passcode');
       }
   };
-
-  // Filter vehicles based on search query
-  const filteredVehicles = vehicles.filter(vehicle => 
-    vehicle.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    (vehicle.driver && vehicle.driver.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    vehicle.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="h-full flex flex-col relative font-sans">
@@ -289,20 +281,6 @@ const FleetView: React.FC<FleetViewProps> = ({ vehicles, maintenanceRecords, onV
         {/* REGISTRY TAB */}
         {activeTab === 'registry' && (
             <div className="space-y-4">
-                {/* Search Bar */}
-                <div className="relative mb-2">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    </div>
-                    <input 
-                        type="text" 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="block w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm shadow-sm"
-                        placeholder="Search vehicles by name, ID, or driver..."
-                    />
-                </div>
-
                 {/* Registry Header */}
                 <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 bg-gray-100/50 rounded-lg text-[11px] font-bold text-gray-400 uppercase tracking-wider border border-gray-200/50">
                     <div className="col-span-4">Vehicle Details</div>
@@ -314,84 +292,77 @@ const FleetView: React.FC<FleetViewProps> = ({ vehicles, maintenanceRecords, onV
                 </div>
 
                 <div className="grid gap-3">
-                    {filteredVehicles.length > 0 ? (
-                        filteredVehicles.map(vehicle => (
-                            <div 
-                                key={vehicle.id} 
-                                className="bg-white p-4 rounded-xl border border-gray-100 hover:border-emerald-300 transition-all shadow-sm group hover:shadow-md grid grid-cols-1 md:grid-cols-12 gap-4 items-center"
-                            >
-                                {/* Vehicle Details */}
-                                <div className="col-span-1 md:col-span-4 flex items-center gap-4 cursor-pointer" onClick={() => onViewReport(vehicle.id)}>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-                                        vehicle.status === VehicleStatus.IN_TRANSIT ? 'bg-emerald-100 text-emerald-600' : 
-                                        vehicle.status === VehicleStatus.MAINTENANCE ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50 group-hover:text-emerald-600'
-                                    }`}>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
-                                    </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-bold text-gray-900 group-hover:text-emerald-700 transition-colors flex items-center gap-2 truncate text-sm sm:text-base">
-                                            {vehicle.name}
-                                        </h3>
-                                        <p className="text-xs text-gray-400 font-mono">{vehicle.id}</p>
-                                    </div>
+                    {vehicles.map(vehicle => (
+                        <div 
+                            key={vehicle.id} 
+                            className="bg-white p-4 rounded-xl border border-gray-100 hover:border-emerald-300 transition-all shadow-sm group hover:shadow-md grid grid-cols-1 md:grid-cols-12 gap-4 items-center"
+                        >
+                            {/* Vehicle Details */}
+                            <div className="col-span-1 md:col-span-4 flex items-center gap-4 cursor-pointer" onClick={() => onViewReport(vehicle.id)}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+                                    vehicle.status === VehicleStatus.IN_TRANSIT ? 'bg-emerald-100 text-emerald-600' : 
+                                    vehicle.status === VehicleStatus.MAINTENANCE ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500 group-hover:bg-emerald-50 group-hover:text-emerald-600'
+                                }`}>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
                                 </div>
-
-                                {/* Driver */}
-                                <div className="col-span-1 md:col-span-2">
-                                    <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Driver</div>
-                                    <div className="text-sm font-medium text-gray-700 truncate">{vehicle.driver || 'Unassigned'}</div>
-                                </div>
-
-                                {/* Status */}
-                                <div className="col-span-1 md:col-span-2">
-                                    <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Status</div>
-                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize ${
-                                        vehicle.status === VehicleStatus.IN_TRANSIT ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
-                                        vehicle.status === VehicleStatus.MAINTENANCE ? 'bg-red-50 text-red-700 border border-red-100' : 
-                                        'bg-gray-50 text-gray-600 border border-gray-100'
-                                    }`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                            vehicle.status === VehicleStatus.IN_TRANSIT ? 'bg-emerald-500' : 
-                                            vehicle.status === VehicleStatus.MAINTENANCE ? 'bg-red-500' : 
-                                            'bg-gray-400'
-                                        }`}></span>
-                                        {vehicle.status ? vehicle.status.replace('_', ' ').toLowerCase() : 'idle'}
-                                    </span>
-                                </div>
-
-                                {/* Load */}
-                                <div className="col-span-1 md:col-span-1">
-                                    <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Load</div>
-                                    <span className="font-semibold text-gray-700 text-sm">{vehicle.loadPercentage}%</span>
-                                </div>
-
-                                {/* Fuel */}
-                                <div className="col-span-1 md:col-span-1">
-                                    <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Fuel</div>
-                                    <span className={`font-semibold text-sm ${vehicle.fuelLevel! < 20 ? 'text-red-500' : 'text-gray-700'}`}>{vehicle.fuelLevel}%</span>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="col-span-1 md:col-span-2 flex items-center md:justify-end gap-2">
-                                    <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Edit">
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDeleteClick(vehicle.id)}
-                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Remove Vehicle"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    </button>
+                                <div className="min-w-0">
+                                    <h3 className="font-bold text-gray-900 group-hover:text-emerald-700 transition-colors flex items-center gap-2 truncate text-sm sm:text-base">
+                                        {vehicle.name}
+                                    </h3>
+                                    <p className="text-xs text-gray-400 font-mono">{vehicle.id}</p>
                                 </div>
                             </div>
-                        ))
-                    ) : (
-                        <div className="p-8 text-center text-gray-500 bg-white rounded-xl border border-gray-100">
-                            <svg className="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            <p>No vehicles found matching "{searchQuery}"</p>
+
+                            {/* Driver */}
+                            <div className="col-span-1 md:col-span-2">
+                                <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Driver</div>
+                                <div className="text-sm font-medium text-gray-700 truncate">{vehicle.driver || 'Unassigned'}</div>
+                            </div>
+
+                            {/* Status */}
+                            <div className="col-span-1 md:col-span-2">
+                                <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Status</div>
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize ${
+                                    vehicle.status === VehicleStatus.IN_TRANSIT ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
+                                    vehicle.status === VehicleStatus.MAINTENANCE ? 'bg-red-50 text-red-700 border border-red-100' : 
+                                    'bg-gray-50 text-gray-600 border border-gray-100'
+                                }`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                        vehicle.status === VehicleStatus.IN_TRANSIT ? 'bg-emerald-500' : 
+                                        vehicle.status === VehicleStatus.MAINTENANCE ? 'bg-red-500' : 
+                                        'bg-gray-400'
+                                    }`}></span>
+                                    {vehicle.status ? vehicle.status.replace('_', ' ').toLowerCase() : 'idle'}
+                                </span>
+                            </div>
+
+                            {/* Load */}
+                            <div className="col-span-1 md:col-span-1">
+                                <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Load</div>
+                                <span className="font-semibold text-gray-700 text-sm">{vehicle.loadPercentage}%</span>
+                            </div>
+
+                            {/* Fuel */}
+                            <div className="col-span-1 md:col-span-1">
+                                <div className="md:hidden text-[10px] uppercase font-bold text-gray-400 mb-1">Fuel</div>
+                                <span className={`font-semibold text-sm ${vehicle.fuelLevel! < 20 ? 'text-red-500' : 'text-gray-700'}`}>{vehicle.fuelLevel}%</span>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="col-span-1 md:col-span-2 flex items-center md:justify-end gap-2">
+                                <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Edit">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                </button>
+                                <button 
+                                    onClick={() => handleDeleteClick(vehicle.id)}
+                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Remove Vehicle"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
                         </div>
-                    )}
+                    ))}
                 </div>
             </div>
         )}
@@ -534,4 +505,3 @@ const FleetView: React.FC<FleetViewProps> = ({ vehicles, maintenanceRecords, onV
 };
 
 export default FleetView;
-  
