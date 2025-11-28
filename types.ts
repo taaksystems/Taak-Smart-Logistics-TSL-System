@@ -13,12 +13,12 @@ export interface Coordinates {
 
 export interface Vehicle {
   id: string; // Fleet Number
-  name: string;
-  status: VehicleStatus;
+  name: string; // Simple unique identifier
+  status?: VehicleStatus;
   location: Coordinates;
   destination?: string;
   loadPercentage: number;
-  driver: string;
+  driver?: string;
   eta?: string;
   fuelLevel?: number;
   lastMaintenance?: string;
@@ -36,7 +36,7 @@ export interface Vehicle {
 
   // Capacity & Specs
   loadCapacity?: number; // kg/tons
-  fuelType?: 'Diesel' | 'Petrol' | 'Electric';
+  fuelType?: 'Diesel' | 'Petrol' | 'Hybrid-Petrol' | 'Hybrid-Diesel';
   tankCapacity?: number;
   enginePower?: string;
   
@@ -49,21 +49,36 @@ export interface Vehicle {
   nextServiceDue?: string;
 }
 
+export interface EmergencyContact {
+  type: 'PRIMARY' | 'SECONDARY';
+  name: string;
+  relationship: string;
+  phone: string;
+}
+
 export interface Driver {
   id: string;
   name: string;
-  status: 'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY';
+  email?: string; // Added for login
+  status: 'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY' | 'PENDING';
   rating: number; // 1-5
   totalDistance: number; // km
   phone: string;
   avatarUrl?: string;
+  
+  // Personal & Docs
+  dob?: string;
+  address?: string;
   licenseNumber?: string;
-  bloodType?: string;
-  emergencyContact?: {
-    name: string;
-    phone: string;
-    relationship: string;
-  };
+  licenseExpiry?: string;
+  nationalId?: string;
+  
+  // Qualifications
+  certifications?: string[];
+  experienceYears?: number;
+
+  // Emergency
+  emergencyContacts?: EmergencyContact[];
 }
 
 export interface Shipment {
@@ -77,6 +92,13 @@ export interface Shipment {
   vehicleId?: string;
   driverId?: string;
   eta?: string;
+  
+  // Geo Data
+  originCoordinates?: Coordinates;
+  destinationCoordinates?: Coordinates;
+  routeCoordinates?: Coordinates[]; // The path
+  progress?: number; // 0 to 100
+  estimatedDuration?: string;
 }
 
 export interface MaintenanceRecord {
@@ -87,6 +109,8 @@ export interface MaintenanceRecord {
   cost: number;
   status: 'COMPLETED' | 'SCHEDULED';
   comment?: string;
+  reportedDate?: string;
+  reportedBy?: string;
 }
 
 export interface Order {

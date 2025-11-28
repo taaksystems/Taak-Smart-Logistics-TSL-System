@@ -1,21 +1,116 @@
 
+
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, AreaChart, Area } from 'recharts';
-import { Vehicle, VehicleStatus, MaintenanceRecord } from '../types';
+import { Vehicle, VehicleStatus, MaintenanceRecord, Driver } from '../types';
 
 interface AnalyticsProps {
   vehicles: Vehicle[];
+  drivers?: Driver[];
   maintenanceRecords?: MaintenanceRecord[];
   selectedVehicleId?: string | null;
+  selectedDriverId?: string | null;
   onClose: () => void;
 }
 
 const COLORS = ['#4F46E5', '#22C55E', '#EF4444', '#F59E0B'];
 
-const Analytics: React.FC<AnalyticsProps> = ({ vehicles, maintenanceRecords = [], selectedVehicleId, onClose }) => {
+const Analytics: React.FC<AnalyticsProps> = ({ vehicles, drivers = [], maintenanceRecords = [], selectedVehicleId, selectedDriverId, onClose }) => {
   const [reportType, setReportType] = useState<'operational' | 'financial' | 'performance'>('operational');
 
-  // If a vehicle is selected, filter data or show specific view
+  // Handle Driver Report View
+  if (selectedDriverId) {
+      const driver = drivers.find(d => d.id === selectedDriverId);
+      if (driver) {
+        return (
+            <div className="bg-white h-full flex flex-col">
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+                  <div className="flex items-center gap-3">
+                      <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                      </button>
+                      <div>
+                          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                              Driver Report: <span className="text-emerald-600">{driver.name}</span>
+                          </h2>
+                          <p className="text-sm text-gray-500">ID: {driver.id}</p>
+                      </div>
+                  </div>
+                  <div className="text-right">
+                      <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide inline-block ${
+                          driver.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' :
+                          driver.status === 'ON_TRIP' ? 'bg-blue-100 text-blue-700' :
+                          driver.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                          'bg-gray-100 text-gray-600'
+                      }`}>
+                          {driver.status.replace('_', ' ')}
+                      </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="text-xs font-bold text-gray-400 uppercase mb-2">Driver Rating</div>
+                            <div className="text-3xl font-black text-amber-500 flex items-center gap-2">
+                                {driver.rating} <span className="text-lg text-gray-300">★</span>
+                            </div>
+                        </div>
+                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="text-xs font-bold text-gray-400 uppercase mb-2">Total Distance</div>
+                            <div className="text-3xl font-black text-indigo-600">{driver.totalDistance.toLocaleString()} <span className="text-sm text-gray-400 font-normal">km</span></div>
+                        </div>
+                        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="text-xs font-bold text-gray-400 uppercase mb-2">Experience</div>
+                            <div className="text-3xl font-black text-emerald-600">{driver.experienceYears || 0} <span className="text-sm text-gray-400 font-normal">Years</span></div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                            <h3 className="font-bold text-gray-800 mb-4">Contact Information</h3>
+                            <div className="space-y-4 text-sm">
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <span className="text-gray-500">Phone</span>
+                                    <span className="font-medium">{driver.phone}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <span className="text-gray-500">Email</span>
+                                    <span className="font-medium">{driver.email || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <span className="text-gray-500">License</span>
+                                    <span className="font-medium">{driver.licenseNumber}</span>
+                                </div>
+                                <div className="flex justify-between border-b border-gray-50 pb-2">
+                                    <span className="text-gray-500">License Expiry</span>
+                                    <span className="font-medium">{driver.licenseExpiry || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                             <h3 className="font-bold text-gray-800 mb-4">Certifications</h3>
+                             <div className="flex flex-wrap gap-2">
+                                 {driver.certifications && driver.certifications.length > 0 ? (
+                                     driver.certifications.map((cert, idx) => (
+                                         <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg border border-gray-200">
+                                             {cert}
+                                         </span>
+                                     ))
+                                 ) : (
+                                     <span className="text-gray-400 text-sm">No certifications listed.</span>
+                                 )}
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+      }
+  }
+
+  // Existing Vehicle Report Logic
   const selectedVehicle = selectedVehicleId ? vehicles.find(v => v.id === selectedVehicleId) : null;
   const vehicleMaintenance = selectedVehicle ? maintenanceRecords.filter(m => m.vehicleId === selectedVehicleId) : [];
 

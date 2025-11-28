@@ -1,3 +1,4 @@
+
 import { Vehicle, VehicleStatus, Driver, Shipment, MaintenanceRecord, Order, Invoice, Alert, Message } from "./types";
 
 export const INITIAL_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
@@ -15,7 +16,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     eta: '2h 15m',
     fuelLevel: 45,
     lastMaintenance: '2023-10-15',
-    efficiency: 3.2
+    efficiency: 3.2,
+    fuelType: 'Diesel'
   },
   {
     id: 'TRK-002',
@@ -28,7 +30,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     eta: 'N/A',
     fuelLevel: 90,
     lastMaintenance: '2023-11-01',
-    efficiency: 4.5
+    efficiency: 4.5,
+    fuelType: 'Petrol'
   },
   {
     id: 'TRK-003',
@@ -41,7 +44,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     eta: '1d',
     fuelLevel: 15,
     lastMaintenance: '2023-09-20',
-    efficiency: 2.8
+    efficiency: 2.8,
+    fuelType: 'Hybrid-Diesel'
   },
   {
     id: 'TRK-004',
@@ -54,7 +58,8 @@ export const MOCK_VEHICLES: Vehicle[] = [
     eta: '45m',
     fuelLevel: 72,
     lastMaintenance: '2023-10-30',
-    efficiency: 5.1
+    efficiency: 5.1,
+    fuelType: 'Hybrid-Petrol'
   }
 ];
 
@@ -62,38 +67,59 @@ export const MOCK_DRIVERS: Driver[] = [
   {
     id: 'DRV-001',
     name: 'John Doe',
+    email: 'john.doe@taak.com',
     status: 'ON_TRIP',
     rating: 4.8,
     totalDistance: 12500,
     phone: '+1 (555) 010-1001',
-    avatarUrl: 'https://ui-avatars.com/api/?name=John+Doe&background=0D9488&color=fff'
+    avatarUrl: 'https://ui-avatars.com/api/?name=John+Doe&background=0D9488&color=fff',
+    licenseNumber: 'DL-CA-99281',
+    certifications: ['Hazmat', 'Heavy Vehicle'],
+    emergencyContacts: [
+      { type: 'PRIMARY', name: 'Mary Doe', relationship: 'Spouse', phone: '+1 (555) 999-0001' }
+    ]
   },
   {
     id: 'DRV-002',
     name: 'Jane Smith',
+    email: 'jane.smith@taak.com',
     status: 'AVAILABLE',
     rating: 4.9,
     totalDistance: 9800,
     phone: '+1 (555) 010-1002',
-    avatarUrl: 'https://ui-avatars.com/api/?name=Jane+Smith&background=C026D3&color=fff'
+    avatarUrl: 'https://ui-avatars.com/api/?name=Jane+Smith&background=C026D3&color=fff',
+    licenseNumber: 'DL-CA-77212',
+    certifications: ['Safety Inspector'],
+    emergencyContacts: [
+      { type: 'PRIMARY', name: 'Bob Smith', relationship: 'Brother', phone: '+1 (555) 999-0002' }
+    ]
   },
   {
     id: 'DRV-003',
     name: 'Mike Johnson',
+    email: 'mike.j@taak.com',
     status: 'OFF_DUTY',
     rating: 4.5,
     totalDistance: 15400,
     phone: '+1 (555) 010-1003',
-    avatarUrl: 'https://ui-avatars.com/api/?name=Mike+Johnson&background=EA580C&color=fff'
+    avatarUrl: 'https://ui-avatars.com/api/?name=Mike+Johnson&background=EA580C&color=fff',
+    licenseNumber: 'DL-NV-44211',
+    emergencyContacts: []
   },
   {
     id: 'DRV-004',
     name: 'Sarah Connor',
+    email: 's.connor@taak.com',
     status: 'ON_TRIP',
     rating: 5.0,
     totalDistance: 22000,
     phone: '+1 (555) 010-1004',
-    avatarUrl: 'https://ui-avatars.com/api/?name=Sarah+Connor&background=2563EB&color=fff'
+    avatarUrl: 'https://ui-avatars.com/api/?name=Sarah+Connor&background=2563EB&color=fff',
+    licenseNumber: 'DL-CA-33211',
+    certifications: ['Defensive Driving', 'First Aid'],
+    emergencyContacts: [
+      { type: 'PRIMARY', name: 'Kyle Reese', relationship: 'Partner', phone: '+1 (555) 999-0004' }
+    ]
   }
 ];
 
@@ -108,7 +134,17 @@ export const MOCK_SHIPMENTS: Shipment[] = [
     weight: '1200 kg',
     vehicleId: 'TRK-001',
     driverId: 'DRV-001',
-    eta: '2h 15m'
+    eta: '2h 15m',
+    originCoordinates: { lat: 37.3382, lng: -121.8863 },
+    destinationCoordinates: { lat: 37.7749, lng: -122.4194 },
+    progress: 65,
+    routeCoordinates: [
+        { lat: 37.3382, lng: -121.8863 },
+        { lat: 37.4, lng: -122.0 },
+        { lat: 37.5, lng: -122.2 },
+        { lat: 37.6, lng: -122.35 },
+        { lat: 37.7749, lng: -122.4194 }
+    ]
   },
   {
     id: 'SHP-1002',
@@ -118,7 +154,11 @@ export const MOCK_SHIPMENTS: Shipment[] = [
     status: 'PENDING',
     cargoType: 'Perishables',
     weight: '500 kg',
-    eta: 'TBD'
+    eta: 'TBD',
+    progress: 0,
+    originCoordinates: { lat: 38.5816, lng: -121.4944 },
+    destinationCoordinates: { lat: 37.8044, lng: -122.2711 },
+    routeCoordinates: [] // Pending
   },
   {
     id: 'SHP-1003',
@@ -130,14 +170,53 @@ export const MOCK_SHIPMENTS: Shipment[] = [
     weight: '2500 kg',
     vehicleId: 'TRK-003',
     driverId: 'DRV-003',
-    eta: 'Delivered'
+    eta: 'Delivered',
+    progress: 100,
+    originCoordinates: { lat: 39.5296, lng: -119.8138 },
+    destinationCoordinates: { lat: 37.7749, lng: -122.4194 },
+    routeCoordinates: [
+        { lat: 39.5296, lng: -119.8138 },
+        { lat: 38.8, lng: -120.5 },
+        { lat: 38.2, lng: -121.5 },
+        { lat: 37.7749, lng: -122.4194 }
+    ]
   }
 ];
 
 export const MOCK_MAINTENANCE: MaintenanceRecord[] = [
-  { id: 'MNT-001', vehicleId: 'TRK-001', type: 'Oil Change', date: '2023-10-15', cost: 150, status: 'COMPLETED' },
-  { id: 'MNT-002', vehicleId: 'TRK-003', type: 'Engine Diagnostics', date: '2023-11-12', cost: 450, status: 'SCHEDULED', comment: 'Check engine light reported by Mike Johnson' },
-  { id: 'MNT-003', vehicleId: 'TRK-002', type: 'Tire Rotation', date: '2023-11-01', cost: 80, status: 'COMPLETED' }
+  { 
+    id: 'MNT-001', 
+    vehicleId: 'TRK-001', 
+    type: 'Oil Change', 
+    date: '2023-10-15', 
+    cost: 150, 
+    status: 'COMPLETED',
+    reportedBy: 'John Doe',
+    reportedDate: '2023-10-12',
+    comment: 'Routine mileage interval reached.'
+  },
+  { 
+    id: 'MNT-002', 
+    vehicleId: 'TRK-003', 
+    type: 'Engine Diagnostics', 
+    date: '2023-11-12', 
+    cost: 450, 
+    status: 'SCHEDULED', 
+    comment: 'Check engine light reported by driver. Engine seems to be running rough at idle.',
+    reportedBy: 'Mike Johnson',
+    reportedDate: '2023-11-10'
+  },
+  { 
+    id: 'MNT-003', 
+    vehicleId: 'TRK-002', 
+    type: 'Tire Rotation', 
+    date: '2023-11-01', 
+    cost: 80, 
+    status: 'COMPLETED',
+    reportedBy: 'Jane Smith',
+    reportedDate: '2023-10-28',
+    comment: 'Uneven wear noticed on front left tire.'
+  }
 ];
 
 export const MOCK_ORDERS: Order[] = [
