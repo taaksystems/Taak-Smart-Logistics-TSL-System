@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import LeafletMap from './components/Map';
@@ -168,18 +167,6 @@ const App: React.FC = () => {
     return true;
   });
 
-  const MenuButton: React.FC<{ label: string; icon: React.ReactNode; view: ViewMode }> = ({ label, icon, view }) => (
-    <button 
-      onClick={() => navigateTo(view)}
-      className={`w-full p-4 flex items-center gap-4 rounded-xl transition-all ${currentView === view ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-gray-600 hover:bg-gray-50'}`}
-    >
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${currentView === view ? 'bg-emerald-100' : 'bg-white border border-gray-100'}`}>
-        {icon}
-      </div>
-      <span className="text-lg">{label}</span>
-    </button>
-  );
-
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-50 overflow-hidden relative font-sans text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
       
@@ -205,80 +192,74 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* Main Navigation Drawer */}
-      {isMenuOpen && (
-        <div className="absolute inset-0 z-50 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-           <div className="h-full w-4/5 max-w-xs bg-white p-6 shadow-2xl animate-slide-right flex flex-col overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                 <h2 className="text-2xl font-bold text-gray-800">Menu</h2>
-                 <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                 </button>
-              </div>
-              <div className="space-y-2 flex-1">
-                 <MenuButton view="map" label="Map" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>} />
-                 <MenuButton view="fleet" label="Fleet" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>} />
-                 <MenuButton view="drivers" label="Drivers" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>} />
-                 <MenuButton view="shipments" label="Shipments" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>} />
-                 <MenuButton view="orders" label="Orders" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>} />
-                 <MenuButton view="billing" label="Billing" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />
-                 <MenuButton view="analytics" label="Reports" icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>} />
-              </div>
-           </div>
-        </div>
-      )}
-
       {/* Header (Hidden during map selection) */}
       {!mapSelectionMode && (
-      <div className="absolute top-0 left-0 w-full z-20 p-4 pointer-events-none flex justify-between items-start">
+      <div className="absolute top-0 left-0 w-full z-40 p-4 pointer-events-none flex justify-between items-start">
         {/* Left: Menu & Logo */}
-        <div className="bg-white/90 backdrop-blur-xl shadow-lg rounded-2xl p-3 flex items-center gap-3 pointer-events-auto border border-white/40 ring-1 ring-black/5">
-           <button onClick={() => setIsMenuOpen(true)} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-           </button>
-           <div className="pl-3 border-l border-gray-200">
-             <img src="assets/tmslogo.png" alt="SmartTMS Logo" className="h-8 w-auto object-contain" />
-           </div>
-        </div>
+        <div className="relative">
+          <div className="bg-white/90 backdrop-blur-xl shadow-lg rounded-2xl p-3 flex items-center gap-3 pointer-events-auto border border-white/40 ring-1 ring-black/5">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+              className={`p-2 rounded-lg transition-colors ${isMenuOpen ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-gray-100 text-gray-700'}`}
+            >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div className="pl-3 border-l border-gray-200">
+              <img src="assets/tmslogo.png" alt="SmartTMS Logo" className="h-8 w-auto object-contain" />
+            </div>
+          </div>
 
-        {/* Center: Global Map Search (Transparent) */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 w-full max-w-sm px-4 pointer-events-auto">
-             <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {isSearching ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-500 border-t-transparent"></div>
-                    ) : (
-                        <svg className="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    )}
-                </div>
-                <input 
-                    type="text" 
-                    className="block w-full pl-10 pr-3 py-3 rounded-2xl bg-white/40 backdrop-blur-md border border-white/30 text-gray-900 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:bg-white/90 shadow-lg transition-all text-sm font-medium" 
-                    placeholder="Search places..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                
-                {/* Search Results Dropdown */}
-                {searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white/90 backdrop-blur-xl rounded-xl shadow-2xl border border-white/50 overflow-hidden max-h-60 overflow-y-auto animate-fade-in-up">
-                        {searchResults.map((result) => (
-                            <button
-                                key={result.place_id}
-                                onClick={() => handleGlobalSearchSelect(result)}
-                                className="w-full text-left px-4 py-3 hover:bg-emerald-50 transition-colors text-sm border-b border-gray-100 last:border-0"
-                            >
-                                <div className="font-semibold text-gray-800 truncate">{result.display_name.split(',')[0]}</div>
-                                <div className="text-xs text-gray-500 truncate">{result.display_name}</div>
-                            </button>
-                        ))}
+          {/* Main Menu Dropdown */}
+          {isMenuOpen && (
+            <div className="absolute top-full left-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden z-50 animate-fade-in-up origin-top-left ring-1 ring-black/5 flex flex-col pointer-events-auto">
+                <button onClick={() => navigateTo('map')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold border-b border-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0121 18.382V7.618a1 1 0 01-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
                     </div>
-                )}
-             </div>
+                    Map View
+                </button>
+                <button onClick={() => navigateTo('fleet')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold border-b border-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    </div>
+                    Fleet
+                </button>
+                <button onClick={() => navigateTo('drivers')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold border-b border-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    </div>
+                    Drivers
+                </button>
+                <button onClick={() => navigateTo('shipments')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold border-b border-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                    </div>
+                    Shipments
+                </button>
+                <button onClick={() => navigateTo('orders')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold border-b border-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                    </div>
+                    Orders
+                </button>
+                <button onClick={() => navigateTo('billing')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold border-b border-gray-100 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    Billing
+                </button>
+                <button onClick={() => navigateTo('analytics')} className="p-4 hover:bg-gray-50 flex items-center gap-3 text-gray-700 font-bold transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    Reports
+                </button>
+            </div>
+          )}
         </div>
 
         {/* Right: Notifications & Profile */}
-        <div className="bg-white/90 backdrop-blur-xl shadow-lg rounded-2xl p-2.5 flex items-center gap-4 pointer-events-auto border border-white/40 ring-1 ring-black/5">
+        <div className="relative bg-white/90 backdrop-blur-xl shadow-lg rounded-2xl p-2.5 flex items-center gap-4 pointer-events-auto border border-white/40 ring-1 ring-black/5">
              <div className="relative">
                 <button 
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -289,6 +270,42 @@ const App: React.FC = () => {
                         <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white"></span>
                     )}
                 </button>
+                
+                {/* Notifications Dropdown */}
+                {isNotificationsOpen && (
+                    <div className="absolute top-full right-0 mt-3 w-80 sm:w-96 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden z-50 animate-fade-in-up origin-top-right ring-1 ring-black/5">
+                        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <h3 className="font-bold text-gray-800">Notifications</h3>
+                            <div className="flex bg-white rounded-lg p-1 border border-gray-200">
+                                <button onClick={() => setNotificationFilter('ALL')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${notificationFilter === 'ALL' ? 'bg-gray-100 text-gray-800' : 'text-gray-400'}`}>ALL</button>
+                                <button onClick={() => setNotificationFilter('DRIVER')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${notificationFilter === 'DRIVER' ? 'bg-gray-100 text-gray-800' : 'text-gray-400'}`}>DRIVER</button>
+                                <button onClick={() => setNotificationFilter('SYSTEM')} className={`px-2 py-0.5 text-[10px] font-bold rounded ${notificationFilter === 'SYSTEM' ? 'bg-gray-100 text-gray-800' : 'text-gray-400'}`}>SYSTEM</button>
+                            </div>
+                        </div>
+                        <div className="max-h-[60vh] overflow-y-auto">
+                            {filteredAlerts.length > 0 ? (
+                                filteredAlerts.map(alert => (
+                                    <div 
+                                        key={alert.id} 
+                                        onClick={(e) => toggleAlertRead(alert.id, e)}
+                                        className={`p-4 border-b border-gray-50 cursor-pointer transition-colors hover:bg-gray-50 ${alert.read ? 'opacity-60' : 'bg-blue-50/30'}`}
+                                    >
+                                        <div className="flex gap-3">
+                                            <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${alert.severity === 'high' ? 'bg-rose-500' : alert.severity === 'medium' ? 'bg-amber-500' : 'bg-blue-500'}`}></div>
+                                            <div>
+                                                <h4 className={`text-sm font-bold ${alert.read ? 'text-gray-600' : 'text-gray-900'}`}>{alert.title}</h4>
+                                                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{alert.message}</p>
+                                                <div className="text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wide">{alert.timestamp} • {alert.type}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-8 text-center text-gray-400 text-sm">No notifications found</div>
+                            )}
+                        </div>
+                    </div>
+                )}
              </div>
              <div className="flex items-center gap-3 pl-2 border-l border-gray-100 cursor-pointer" onClick={() => navigateTo('profile')}>
                 <div className="text-right hidden sm:block">
@@ -321,6 +338,93 @@ const App: React.FC = () => {
 
       {/* MAP CONTROLS & SIDEBAR */}
       {currentView === 'map' && !mapSelectionMode && (
+        <>
+        {/* Invisible HBox for Search and Add Buttons (Anchored above Fleet Overview) */}
+        <div 
+          className="absolute left-0 right-0 z-30 px-4 flex items-end justify-center gap-4 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+          style={{ bottom: isSidebarOpen ? 'calc(75% + 1rem)' : '7rem' }}
+        >
+            
+            {/* Search Bar */}
+            <div className={`pointer-events-auto relative group flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] shadow-xl ${
+                isSidebarOpen 
+                    ? 'w-10 h-10 bg-gray-200/60 backdrop-blur-sm rounded-full shadow-none border-transparent' 
+                    : 'flex-1 md:flex-none md:w-[32rem] h-12 bg-white/40 backdrop-blur-md border border-white/40 rounded-full'
+            }`}>
+                {/* Search Icon */}
+                <div className={`absolute inset-0 flex items-center transition-all duration-500 ${isSidebarOpen ? 'justify-center text-gray-500' : 'justify-start left-4 text-gray-700'}`}>
+                    {isSearching ? (
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-600 border-t-transparent"></div>
+                    ) : (
+                        <svg className={`transition-all duration-500 ${isSidebarOpen ? 'h-5 w-5' : 'h-5 w-5'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    )}
+                </div>
+
+                {/* Input */}
+                <input 
+                    type="text" 
+                    className={`block w-full h-full bg-transparent text-gray-900 placeholder:text-[10px] sm:placeholder:text-xs placeholder:text-gray-500 placeholder:font-bold font-bold focus:outline-none focus:ring-0 transition-all duration-300 text-center ${
+                        isSidebarOpen ? 'opacity-0 scale-0' : 'opacity-100 scale-100 px-10'
+                    }`}
+                    placeholder="PLACES, VEHICLES, SHIPMENTS, ORDERS"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    disabled={isSidebarOpen}
+                />
+                
+                {/* Search Results Dropdown (Opens Upwards) */}
+                {!isSidebarOpen && searchResults.length > 0 && (
+                    <div className="absolute bottom-full left-0 right-0 mb-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden max-h-60 overflow-y-auto animate-fade-in-up flex flex-col-reverse">
+                        {searchResults.map((result) => (
+                            <button
+                                key={result.place_id}
+                                onClick={() => handleGlobalSearchSelect(result)}
+                                className="w-full text-left px-5 py-3 hover:bg-emerald-50 transition-colors text-sm border-b border-gray-100 last:border-0"
+                            >
+                                <div className="font-semibold text-gray-800 truncate">{result.display_name.split(',')[0]}</div>
+                                <div className="text-xs text-gray-500 truncate">{result.display_name}</div>
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Add Button (Right) */}
+            <div className="pointer-events-auto relative flex flex-col items-end gap-3">
+                 {isQuickActionOpen && !isSidebarOpen && (
+                    <div className="flex flex-col gap-3 animate-fade-in-up items-end pb-2 mb-2 absolute bottom-full right-0">
+                         <button onClick={() => handleQuickAction('orders')} className="flex items-center gap-3 group relative">
+                            <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">New Order</div>
+                            <div className="w-10 h-10 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></div>
+                        </button>
+                        <button onClick={() => handleQuickAction('shipments')} className="flex items-center gap-3 group relative">
+                            <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">New Shipment</div>
+                            <div className="w-10 h-10 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>
+                        </button>
+                        <button onClick={() => handleQuickAction('drivers')} className="flex items-center gap-3 group relative">
+                            <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">Add Driver</div>
+                            <div className="w-10 h-10 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg></div>
+                        </button>
+                        <button onClick={() => handleQuickAction('fleet')} className="flex items-center gap-3 group relative">
+                            <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">Add Vehicle</div>
+                            <div className="w-10 h-10 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg></div>
+                        </button>
+                    </div>
+                )}
+                <button 
+                    onClick={() => !isSidebarOpen && setIsQuickActionOpen(!isQuickActionOpen)} 
+                    className={`flex items-center justify-center transition-all duration-500 cubic-bezier(0.32, 0.72, 0, 1) ${
+                        isSidebarOpen 
+                            ? 'w-10 h-10 rounded-full bg-gray-200/60 backdrop-blur-sm text-gray-400 shadow-none cursor-default' 
+                            : `w-14 h-14 rounded-full border-4 border-white/50 backdrop-blur-md shadow-xl ${isQuickActionOpen ? 'bg-red-500 text-white rotate-45 shadow-lg shadow-red-200' : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-500/40'}`
+                    }`}
+                    disabled={isSidebarOpen}
+                >
+                    <svg className={`transition-all duration-500 ${isSidebarOpen ? 'w-5 h-5' : 'w-7 h-7'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                </button>
+            </div>
+        </div>
+
         <div className="absolute bottom-0 left-0 right-0 z-20 pointer-events-none flex flex-col justify-end h-[85vh]">
           {selectedVehicle && (
             <div className="px-4 mb-4 pointer-events-auto w-full max-w-md mx-auto">
@@ -348,7 +452,7 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <div className={`bg-white rounded-t-[2.5rem] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] pointer-events-auto transition-all duration-500 cubic-bezier(0.32, 0.72, 0, 1) flex flex-col border-t border-gray-100 ${isSidebarOpen ? 'h-[75%]' : 'h-24 hover:h-28'}`}>
+          <div className={`bg-white rounded-t-[2.5rem] shadow-[0_-8px_30px_rgba(0,0,0,0.12)] pointer-events-auto transition-all duration-500 cubic-bezier(0.32, 0.72, 0, 1) flex flex-col border-t border-gray-100 ${isSidebarOpen ? 'h-[75%]' : 'h-24'}`}>
             <div className="w-full p-4 flex flex-col items-center cursor-pointer shrink-0 relative bg-white rounded-t-[2.5rem]" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               <div className="w-12 h-1.5 bg-gray-200 rounded-full mb-4"></div>
               <div className="w-full px-4 flex justify-between items-center">
@@ -370,32 +474,7 @@ const App: React.FC = () => {
             {isSidebarOpen && <div className="p-3 text-center bg-white border-t border-gray-50 pb-6 sm:pb-3 shrink-0"><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">© TAAK GROUP OF COMPANIES</p></div>}
           </div>
         </div>
-      )}
-      
-      {currentView === 'map' && !mapSelectionMode && (
-      <div className="fixed bottom-32 sm:bottom-48 right-4 z-40 flex flex-col items-end gap-3 pointer-events-none">
-        {isQuickActionOpen && (
-            <div className="flex flex-col gap-3 pointer-events-auto animate-fade-in-up items-end pb-2">
-                <button onClick={() => handleQuickAction('orders')} className="flex items-center gap-3 group relative">
-                    <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">New Order</div>
-                    <div className="w-12 h-12 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></div>
-                </button>
-                <button onClick={() => handleQuickAction('shipments')} className="flex items-center gap-3 group relative">
-                    <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">New Shipment</div>
-                    <div className="w-12 h-12 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>
-                </button>
-                <button onClick={() => handleQuickAction('drivers')} className="flex items-center gap-3 group relative">
-                    <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">Add Driver</div>
-                    <div className="w-12 h-12 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg></div>
-                </button>
-                <button onClick={() => handleQuickAction('fleet')} className="flex items-center gap-3 group relative">
-                    <div className="absolute right-14 top-1/2 -translate-y-1/2 bg-white px-3 py-1.5 rounded-lg shadow-md border border-gray-100 text-xs font-bold text-gray-700 whitespace-nowrap opacity-100 transition-opacity">Add Vehicle</div>
-                    <div className="w-12 h-12 rounded-full bg-white text-emerald-600 shadow-xl border border-emerald-50 flex items-center justify-center hover:bg-emerald-50 transition-colors"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg></div>
-                </button>
-            </div>
-        )}
-        <button onClick={() => setIsQuickActionOpen(!isQuickActionOpen)} className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 pointer-events-auto transform hover:scale-105 active:scale-95 border-4 border-white ${isQuickActionOpen ? 'bg-white text-gray-700 rotate-45 shadow-lg' : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.5)]'}`}><svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg></button>
-      </div>
+        </>
       )}
     </div>
   );
