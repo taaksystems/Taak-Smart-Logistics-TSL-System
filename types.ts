@@ -165,3 +165,5 @@ export interface ChatMessage {
   text: string;
   timestamp: Date;
 }
+
+export type ViewMode = 'map' | 'fleet' | 'drivers' | 'shipments' | 'analytics' | 'orders' | 'billing' | 'profile' | 'messages';

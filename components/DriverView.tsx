@@ -96,69 +96,83 @@ const DriverView: React.FC<DriverViewProps> = ({ drivers, onClose, onAddDriver, 
     }
   };
 
+  const InputField = ({ label, value, onChange, type = "text", placeholder, required }: any) => (
+      <div>
+        <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wide ml-1">{label}</label>
+        <input 
+            type={type} 
+            value={value} 
+            onChange={onChange} 
+            required={required}
+            className="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all font-medium text-slate-800 placeholder:text-slate-400" 
+            placeholder={placeholder} 
+        />
+      </div>
+  );
+
   return (
     <div className="h-full flex flex-col font-sans relative">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-        <div className="flex items-center gap-3">
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+      <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white shrink-0 sticky top-0 z-20">
+        <div className="flex items-center gap-4">
+          <button onClick={onClose} className="p-2.5 rounded-full hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           </button>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Driver Management</h2>
-            <p className="text-sm text-gray-500">Monitor performance, manage profiles, and onboarding.</p>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Driver Management</h2>
+            <p className="text-sm text-slate-500 font-medium">Monitor performance, manage profiles, and onboarding.</p>
           </div>
         </div>
         
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-200 transition-all flex items-center gap-2"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-200 transition-all flex items-center gap-2 active:scale-95"
         >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Add Driver
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-gray-50/50 p-6">
+      <div className="flex-1 overflow-y-auto bg-slate-50/50 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
             {drivers.map(driver => (
               <div 
                 key={driver.id} 
                 onClick={() => onViewReport(driver.id)}
-                className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-all group cursor-pointer hover:border-emerald-300"
+                className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group cursor-pointer hover:border-emerald-300 relative overflow-hidden"
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-6">
                   <div className="flex items-center gap-4">
-                    <img src={driver.avatarUrl} alt={driver.name} className="w-16 h-16 rounded-full border-2 border-white shadow-md group-hover:scale-105 transition-transform" />
+                    <img src={driver.avatarUrl} alt={driver.name} className="w-16 h-16 rounded-full border-2 border-white shadow-md group-hover:scale-110 transition-transform duration-300" />
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900 leading-tight">{driver.name}</h3>
-                      <p className="text-xs text-emerald-600 font-bold mt-1">{driver.id}</p>
-                      <div className={`mt-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase ${
-                          driver.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' :
-                          driver.status === 'ON_TRIP' ? 'bg-blue-100 text-blue-700' :
-                          driver.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                          'bg-gray-100 text-gray-600'
+                      <h3 className="text-lg font-bold text-slate-900 leading-tight group-hover:text-emerald-700 transition-colors">{driver.name}</h3>
+                      <p className="text-xs text-emerald-600 font-bold mt-1 tracking-wide">{driver.id}</p>
+                      <div className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide uppercase border ${
+                          driver.status === 'AVAILABLE' ? 'bg-green-50 text-green-700 border-green-100' :
+                          driver.status === 'ON_TRIP' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                          driver.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                          'bg-slate-50 text-slate-600 border-slate-100'
                       }`}>
                           {driver.status.replace('_', ' ')}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                     <div className="flex items-center gap-1 text-amber-500 font-bold bg-amber-50 px-2 py-1 rounded-lg">
-                        <span>{driver.rating}</span>
-                        <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                     <div className="flex items-center gap-1 text-amber-500 font-bold bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-100/50">
+                        <span className="text-sm">{driver.rating}</span>
+                        <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                      </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100 mt-2">
+                <div className="grid grid-cols-2 gap-4 pt-5 border-t border-slate-50 mt-2">
                   <div>
-                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Contact</div>
-                      <div className="text-sm font-semibold text-gray-800 truncate">{driver.email || driver.phone}</div>
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Contact</div>
+                      <div className="text-sm font-semibold text-slate-800 truncate" title={driver.email || driver.phone}>{driver.email || driver.phone}</div>
                   </div>
                   <div className="text-right">
-                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">License</div>
-                      <div className="text-sm font-semibold text-gray-800">{driver.licenseNumber || 'N/A'}</div>
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">License</div>
+                      <div className="text-sm font-semibold text-slate-800">{driver.licenseNumber || 'N/A'}</div>
                   </div>
                 </div>
               </div>
@@ -168,159 +182,104 @@ const DriverView: React.FC<DriverViewProps> = ({ drivers, onClose, onAddDriver, 
 
       {/* ADD DRIVER MODAL */}
       {isAdding && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-              <div className="bg-white rounded-3xl p-6 w-full max-w-4xl shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto border border-gray-100 flex flex-col">
-                  <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4 sticky top-0 bg-white z-10 shrink-0">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-md p-4 animate-fade-in">
+              <div className="bg-white rounded-[2rem] p-8 w-full max-w-4xl shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto border border-white/50 flex flex-col">
+                  <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-6 sticky top-0 bg-white z-10 shrink-0">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">New Driver Profile</h3>
-                        <p className="text-xs text-gray-500 mt-1">Fill in the required details to generate a driver ID.</p>
+                        <h3 className="text-2xl font-bold text-slate-900">New Driver Profile</h3>
+                        <p className="text-sm text-slate-500 font-medium mt-1">Fill in the required details to generate a driver ID.</p>
                       </div>
-                      <button onClick={() => setIsAdding(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      <button onClick={() => setIsAdding(false)} className="p-2.5 bg-slate-50 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
                   </div>
                   
                   <form onSubmit={handleCreate} className="space-y-8 pb-4">
                       {/* Section 1: Personal Info */}
                       <div>
-                          <h4 className="text-sm font-bold text-emerald-600 uppercase tracking-wide border-b border-gray-100 pb-2 mb-4">1. Personal Information</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-widest border-b border-emerald-100 pb-2 mb-5">1. Personal Information</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                               <div className="md:col-span-2">
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Full Name</label>
-                                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none" placeholder="e.g. Michael Knight" />
+                                  <InputField label="Full Name" value={formData.name} onChange={(e: any) => setFormData({...formData, name: e.target.value})} required placeholder="e.g. Michael Knight" />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Email Address</label>
-                                  <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none" placeholder="e.g. driver@taak.com" />
+                                  <InputField label="Email Address" type="email" value={formData.email} onChange={(e: any) => setFormData({...formData, email: e.target.value})} required placeholder="e.g. driver@taak.com" />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Phone Number</label>
-                                  <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none" placeholder="+1 555 000 0000" />
+                                  <InputField label="Phone Number" type="tel" value={formData.phone} onChange={(e: any) => setFormData({...formData, phone: e.target.value})} required placeholder="+1 555 000 0000" />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Date of Birth</label>
-                                  <input type="date" value={formData.dob} onChange={e => setFormData({...formData, dob: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none" />
+                                  <InputField label="Date of Birth" type="date" value={formData.dob} onChange={(e: any) => setFormData({...formData, dob: e.target.value})} />
                               </div>
                               <div className="md:col-span-2">
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Residential Address</label>
-                                  <input type="text" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-emerald-500 outline-none" placeholder="123 Street Name, City, State" />
+                                  <InputField label="Residential Address" value={formData.address} onChange={(e: any) => setFormData({...formData, address: e.target.value})} placeholder="123 Street Name, City, State" />
                               </div>
                           </div>
                       </div>
 
                       {/* Section 2: Documents */}
                       <div>
-                          <h4 className="text-sm font-bold text-blue-600 uppercase tracking-wide border-b border-gray-100 pb-2 mb-4">2. ID & License Documents</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <h4 className="text-xs font-bold text-blue-600 uppercase tracking-widest border-b border-blue-100 pb-2 mb-5">2. ID & License Documents</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Driver's License No.</label>
-                                  <input required type="text" value={formData.licenseNumber} onChange={e => setFormData({...formData, licenseNumber: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 outline-none" placeholder="DL-XXXX-XXXX" />
+                                  <InputField label="Driver's License No." value={formData.licenseNumber} onChange={(e: any) => setFormData({...formData, licenseNumber: e.target.value})} required placeholder="DL-XXXX-XXXX" />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">License Expiry</label>
-                                  <input type="date" value={formData.licenseExpiry} onChange={e => setFormData({...formData, licenseExpiry: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 outline-none" />
+                                  <InputField label="License Expiry" type="date" value={formData.licenseExpiry} onChange={(e: any) => setFormData({...formData, licenseExpiry: e.target.value})} />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">National ID / SSN</label>
-                                  <input type="text" value={formData.nationalId} onChange={e => setFormData({...formData, nationalId: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 outline-none" placeholder="ID Number" />
+                                  <InputField label="National ID / SSN" value={formData.nationalId} onChange={(e: any) => setFormData({...formData, nationalId: e.target.value})} placeholder="ID Number" />
                               </div>
                           </div>
                       </div>
 
                       {/* Section 3: Qualifications */}
                       <div>
-                          <h4 className="text-sm font-bold text-indigo-600 uppercase tracking-wide border-b border-gray-100 pb-2 mb-4">3. Certifications & Qualifications</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b border-indigo-100 pb-2 mb-5">3. Certifications & Qualifications</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                               <div className="md:col-span-2">
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Certifications (comma separated)</label>
-                                  <input type="text" value={formData.certsInput} onChange={e => setFormData({...formData, certsInput: e.target.value})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-indigo-500 outline-none" placeholder="e.g. Hazmat, Forklift, Defensive Driving" />
+                                  <InputField label="Certifications (comma separated)" value={formData.certsInput} onChange={(e: any) => setFormData({...formData, certsInput: e.target.value})} placeholder="e.g. Hazmat, Forklift, Defensive Driving" />
                               </div>
                               <div>
-                                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Years of Experience</label>
-                                  <input type="number" value={formData.experienceYears} onChange={e => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})} className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-indigo-500 outline-none" />
+                                  <InputField label="Years of Experience" type="number" value={formData.experienceYears} onChange={(e: any) => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})} />
                               </div>
                           </div>
                       </div>
 
                       {/* Section 4: Emergency Contacts */}
                       <div>
-                          <h4 className="text-sm font-bold text-rose-600 uppercase tracking-wide border-b border-gray-100 pb-2 mb-4">4. Emergency Contacts</h4>
+                          <h4 className="text-xs font-bold text-rose-600 uppercase tracking-widest border-b border-rose-100 pb-2 mb-5">4. Emergency Contacts</h4>
                           <div className="space-y-4">
                               {/* Primary */}
-                              <div className="p-4 bg-rose-50/50 rounded-xl border border-rose-100">
-                                  <span className="text-xs font-bold text-rose-500 uppercase block mb-3">Primary Contact</span>
+                              <div className="p-5 bg-rose-50/50 rounded-2xl border border-rose-100">
+                                  <span className="text-xs font-bold text-rose-500 uppercase block mb-3 tracking-wide">Primary Contact</span>
                                   <div className="grid grid-cols-3 gap-3">
-                                      <input type="text" required value={formData.primaryContactName} onChange={e => setFormData({...formData, primaryContactName: e.target.value})} className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm" placeholder="Name" />
-                                      <input type="text" required value={formData.primaryContactRel} onChange={e => setFormData({...formData, primaryContactRel: e.target.value})} className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm" placeholder="Relationship" />
-                                      <input type="tel" required value={formData.primaryContactPhone} onChange={e => setFormData({...formData, primaryContactPhone: e.target.value})} className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm" placeholder="Phone" />
+                                      <input type="text" required value={formData.primaryContactName} onChange={e => setFormData({...formData, primaryContactName: e.target.value})} className="w-full p-3 bg-white rounded-xl border border-slate-200 text-sm outline-none focus:border-rose-400" placeholder="Name" />
+                                      <input type="text" required value={formData.primaryContactRel} onChange={e => setFormData({...formData, primaryContactRel: e.target.value})} className="w-full p-3 bg-white rounded-xl border border-slate-200 text-sm outline-none focus:border-rose-400" placeholder="Relationship" />
+                                      <input type="tel" required value={formData.primaryContactPhone} onChange={e => setFormData({...formData, primaryContactPhone: e.target.value})} className="w-full p-3 bg-white rounded-xl border border-slate-200 text-sm outline-none focus:border-rose-400" placeholder="Phone" />
                                   </div>
                               </div>
                               {/* Secondary */}
-                              <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                  <span className="text-xs font-bold text-gray-400 uppercase block mb-3">Secondary Contact (Optional)</span>
+                              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
+                                  <span className="text-xs font-bold text-slate-400 uppercase block mb-3 tracking-wide">Secondary Contact (Optional)</span>
                                   <div className="grid grid-cols-3 gap-3">
-                                      <input type="text" value={formData.secondaryContactName} onChange={e => setFormData({...formData, secondaryContactName: e.target.value})} className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm" placeholder="Name" />
-                                      <input type="text" value={formData.secondaryContactRel} onChange={e => setFormData({...formData, secondaryContactRel: e.target.value})} className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm" placeholder="Relationship" />
-                                      <input type="tel" value={formData.secondaryContactPhone} onChange={e => setFormData({...formData, secondaryContactPhone: e.target.value})} className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm" placeholder="Phone" />
+                                      <input type="text" value={formData.secondaryContactName} onChange={e => setFormData({...formData, secondaryContactName: e.target.value})} className="w-full p-3 bg-white rounded-xl border border-slate-200 text-sm outline-none focus:border-slate-400" placeholder="Name" />
+                                      <input type="text" value={formData.secondaryContactRel} onChange={e => setFormData({...formData, secondaryContactRel: e.target.value})} className="w-full p-3 bg-white rounded-xl border border-slate-200 text-sm outline-none focus:border-slate-400" placeholder="Relationship" />
+                                      <input type="tel" value={formData.secondaryContactPhone} onChange={e => setFormData({...formData, secondaryContactPhone: e.target.value})} className="w-full p-3 bg-white rounded-xl border border-slate-200 text-sm outline-none focus:border-slate-400" placeholder="Phone" />
                                   </div>
                               </div>
                           </div>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
-                          <button type="button" onClick={() => setIsAdding(false)} className="px-6 py-3 font-bold text-gray-500 hover:bg-gray-50 rounded-xl transition-colors">
-                              Cancel
-                          </button>
-                          <button type="submit" className="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-colors">
-                              Create Driver Profile
-                          </button>
+                      <div className="pt-6">
+                           <button type="submit" className="w-full py-4 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-[0.98]">
+                               Create Driver Profile
+                           </button>
                       </div>
                   </form>
               </div>
           </div>
-      )}
-
-      {/* SUCCESS ID MODAL */}
-      {createdDriverId && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fade-in">
-           <div className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl text-center border border-white/20 animate-scale-in">
-               <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
-                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-               </div>
-               <h3 className="text-2xl font-bold text-gray-900 mb-2">Driver Profile Created</h3>
-               <p className="text-gray-500 text-sm mb-6">
-                 Share this ID Code with the driver. They will use it to claim their account.
-               </p>
-               
-               <div className="bg-gray-100 rounded-xl p-4 mb-6 border border-gray-200 flex items-center justify-between">
-                   <span className="font-mono text-lg font-bold text-gray-800 tracking-wider select-all">{createdDriverId}</span>
-                   <button 
-                      onClick={copyToClipboard} 
-                      className={`font-bold text-sm px-3 py-1.5 rounded-lg transition-all flex items-center gap-2 ${isCopied ? 'bg-emerald-600 text-white' : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'}`}
-                   >
-                        {isCopied ? (
-                            <>
-                                <span>Copied!</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                            </>
-                        ) : (
-                            <>
-                                <span>Copy</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-                            </>
-                        )}
-                   </button>
-               </div>
-
-               <button 
-                  onClick={() => setCreatedDriverId(null)}
-                  className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-colors"
-               >
-                   Done
-               </button>
-           </div>
-        </div>
       )}
     </div>
   );
