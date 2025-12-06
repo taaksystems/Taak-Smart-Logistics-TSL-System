@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Vehicle, VehicleStatus, Coordinates } from '../types';
 import { INITIAL_CENTER, INITIAL_ZOOM, MAP_ATTRIBUTION, MAP_LAYER_URL } from '../constants';
@@ -308,13 +309,26 @@ const LeafletMap: React.FC<MapProps> = ({
       const existingMarker = driverMarkersRef.current.get(name);
 
       if (existingMarker) {
+          // Check if we are already animating to this exact spot to prevent restart/jitter
+          const activeAnim = driverAnimationStateRef.current.get(name);
+          const isTargetSame = activeAnim && 
+                               Math.abs(activeAnim.to.lat - newLatLng.lat) < 0.000001 && 
+                               Math.abs(activeAnim.to.lng - newLatLng.lng) < 0.000001;
+
+          if (isTargetSame) {
+             return; // Continue existing animation, do not reset
+          }
+
           const currentLatLng = existingMarker.getLatLng();
-          if (currentLatLng.lat !== newLatLng.lat || currentLatLng.lng !== newLatLng.lng) {
+          // Avoid tiny jitters if position is practically the same
+          if (Math.abs(currentLatLng.lat - newLatLng.lat) > 0.000001 || 
+              Math.abs(currentLatLng.lng - newLatLng.lng) > 0.000001) {
+              
               driverAnimationStateRef.current.set(name, {
                   from: currentLatLng,
                   to: newLatLng,
                   startTime: performance.now(),
-                  duration: 1000, // 1 second animation
+                  duration: 1000, // 1 second smooth animation
               });
               startAnimationLoop();
           }
