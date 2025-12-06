@@ -1,4 +1,5 @@
 
+
 export enum VehicleStatus {
   IDLE = 'IDLE',
   IN_TRANSIT = 'IN_TRANSIT',
@@ -113,17 +114,6 @@ export interface MaintenanceRecord {
   reportedBy?: string;
 }
 
-export interface Order {
-  id: string;
-  customerName: string;
-  serviceType: string;
-  origin: string;
-  destination: string;
-  requestDate: string;
-  status: 'NEW' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
-  price: number;
-}
-
 export interface Invoice {
   id: string;
   orderId: string;
@@ -166,4 +156,4 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-export type ViewMode = 'map' | 'fleet' | 'drivers' | 'shipments' | 'analytics' | 'orders' | 'billing' | 'profile' | 'messages';
+export type ViewMode = 'map' | 'fleet' | 'drivers' | 'shipments' | 'analytics' | 'billing' | 'profile' | 'messages';

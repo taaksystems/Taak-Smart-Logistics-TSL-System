@@ -1,5 +1,6 @@
 
-import { Vehicle, VehicleStatus, Driver, Shipment, MaintenanceRecord, Order, Invoice, Alert, Message } from "./types";
+
+import { Vehicle, VehicleStatus, Driver, Shipment, MaintenanceRecord, Invoice, Alert, Message } from "./types";
 
 export const INITIAL_CENTER = { lat: 37.7749, lng: -122.4194 }; // San Francisco
 export const INITIAL_ZOOM = 13;
@@ -217,12 +218,6 @@ export const MOCK_MAINTENANCE: MaintenanceRecord[] = [
     reportedDate: '2023-10-28',
     comment: 'Uneven wear noticed on front left tire.'
   }
-];
-
-export const MOCK_ORDERS: Order[] = [
-  { id: 'ORD-5001', customerName: 'MegaCorp Inc.', serviceType: 'Freight', origin: 'Los Angeles, CA', destination: 'Las Vegas, NV', requestDate: '2023-11-20', status: 'NEW', price: 1200 },
-  { id: 'ORD-5002', customerName: 'Fresh Foods Ltd.', serviceType: 'Cold Chain', origin: 'Salinas, CA', destination: 'Portland, OR', requestDate: '2023-11-19', status: 'SCHEDULED', price: 3500 },
-  { id: 'ORD-5003', customerName: 'TechHub', serviceType: 'Express', origin: 'San Francisco, CA', destination: 'San Jose, CA', requestDate: '2023-11-18', status: 'COMPLETED', price: 450 }
 ];
 
 export const MOCK_INVOICES: Invoice[] = [

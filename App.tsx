@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import LeafletMap from './components/Map';
@@ -9,6 +10,8 @@ import ShipmentView from './components/ShipmentView';
 import BillingView from './components/BillingView';
 import ProfileView from './components/ProfileView';
 import MessagesView from './components/MessagesView';
+import Login from './components/Login';
+import DriverDashboard from './components/DriverDashboard';
 import { MOCK_VEHICLES, MOCK_DRIVERS, MOCK_SHIPMENTS, MOCK_MAINTENANCE, MOCK_INVOICES, MOCK_ALERTS, MOCK_MESSAGES } from './constants';
 import { Vehicle, Shipment, Driver, MaintenanceRecord, Coordinates, ViewMode } from './types';
 import { searchAddress, SearchResult } from './services/mapService';
@@ -16,7 +19,16 @@ import { searchAddress, SearchResult } from './services/mapService';
 
 type NotificationFilter = 'ALL' | 'DRIVER' | 'SYSTEM';
 
+interface DriverLocationState {
+  [driverName: string]: {
+    location: Coordinates;
+    lastUpdate: number;
+  };
+}
+
 const App: React.FC = () => {
+  const [loggedInUser, setLoggedInUser] = useState<{ type: 'driver' | 'admin', name: string } | null>(null);
+
   const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
   const [drivers, setDrivers] = useState<Driver[]>(MOCK_DRIVERS);
   const [shipments, setShipments] = useState<Shipment[]>(MOCK_SHIPMENTS);
@@ -50,6 +62,7 @@ const App: React.FC = () => {
 
   // Live Location Tracking
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [driverLocations, setDriverLocations] = useState<DriverLocationState>({});
   const [isTrackingLocation, setIsTrackingLocation] = useState<boolean>(false);
   const locationWatchId = useRef<number | null>(null);
 
@@ -67,6 +80,29 @@ const App: React.FC = () => {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const TIMEOUT_MS = 30 * 1000; // 30 seconds
+  
+      setDriverLocations(prev => {
+        const newLocations: DriverLocationState = {};
+        let changed = false;
+        for (const driverName in prev) {
+          if (now - prev[driverName].lastUpdate < TIMEOUT_MS) {
+            newLocations[driverName] = prev[driverName];
+          } else {
+            changed = true; // A driver was removed
+          }
+        }
+        // Only update state if something changed to avoid re-renders
+        return changed ? newLocations : prev;
+      });
+    }, 5000); // Check every 5 seconds
+  
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGlobalSearchSelect = (result: SearchResult) => {
     const coords = { lat: parseFloat(result.lat), lng: parseFloat(result.lon) };
@@ -215,6 +251,47 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const handleLogout = () => {
+    setLoggedInUser(null);
+  };
+
+  const handleDriverLocationUpdate = (coords: Coordinates | null, name: string | null) => {
+    if (!name) return;
+
+    if (coords) { // Add or update location
+        if (currentView !== 'map') {
+          navigateTo('map');
+        }
+        setSelectedVehicleId(null);
+        setFocusedLocation(null);
+
+        setDriverLocations(prev => ({
+          ...prev,
+          [name]: {
+            location: coords,
+            lastUpdate: Date.now()
+          }
+        }));
+    } else { // Remove location
+        setDriverLocations(prev => {
+          const newState = { ...prev };
+          delete newState[name];
+          return newState;
+        });
+    }
+  };
+
+  if (!loggedInUser) {
+    return <Login onLogin={(type, name) => setLoggedInUser({ type, name })} />;
+  }
+
+  if (loggedInUser.type === 'driver') {
+    return <DriverDashboard driverName={loggedInUser.name} onLogout={handleLogout} onLocationUpdate={handleDriverLocationUpdate} />;
+  }
+
+  const driverLocationsForMap: [string, Coordinates][] = Object.entries(driverLocations)
+    .sort(([, a], [, b]) => a.lastUpdate - b.lastUpdate)
+    .map(([name, data]) => [name, data.location]);
 
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
   const unreadAlertCount = alerts.filter(a => !a.read).length;
@@ -330,7 +407,7 @@ const App: React.FC = () => {
         </nav>
         
         <div className="pb-6">
-            <button className="flex items-center gap-3 p-3 w-full rounded-xl hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors group">
+            <button onClick={handleLogout} className="flex items-center gap-3 p-3 w-full rounded-xl hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors group">
                  <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 flex items-center justify-center group-hover:border-red-100 group-hover:bg-red-100 transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                  </div>
@@ -374,6 +451,7 @@ const App: React.FC = () => {
               routeMarkers={routeMarkers}
               focusedLocation={focusedLocation}
               userLocation={userLocation}
+              driverLocations={driverLocationsForMap}
             />
             
             {/* Map Selection Overlay Hint */}
@@ -420,11 +498,11 @@ const App: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3 pl-2 border-l border-slate-100/50 cursor-pointer pr-1" onClick={() => navigateTo('profile')} role="button" tabIndex={0} aria-label="Open profile settings">
                     <div className="text-right hidden sm:block">
-                      <div className="text-sm font-bold text-slate-800 leading-tight">J. Smith</div>
+                      <div className="text-sm font-bold text-slate-800 leading-tight">{loggedInUser.name}</div>
                       <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Admin</div>
                     </div>
                     <div className="relative hover:opacity-90 transition-opacity">
-                      <img src="https://ui-avatars.com/api/?name=J+Smith&background=10B981&color=fff&font-size=0.4" className="w-9 h-9 rounded-full border border-white shadow-sm" alt="Profile" />
+                      <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(loggedInUser.name)}&background=10B981&color=fff&font-size=0.4`} className="w-9 h-9 rounded-full border border-white shadow-sm" alt="Profile" />
                       <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" aria-hidden="true"></span>
                     </div>
                 </div>
@@ -459,7 +537,7 @@ const App: React.FC = () => {
                   {currentView === 'shipments' && <ShipmentView shipments={shipments} vehicles={vehicles} drivers={drivers} onCreateShipment={handleCreateShipment} onClose={handleBack} onSelectLocation={(type) => setMapSelectionMode(type)} tempCoords={tempShipmentCoords} onSelectShipment={handleSelectShipmentOnMap} />}
                   {currentView === 'billing' && <BillingView invoices={invoices} onClose={handleBack} />}
                   {currentView === 'analytics' && <Analytics vehicles={vehicles} drivers={drivers} maintenanceRecords={maintenanceRecords} selectedVehicleId={selectedVehicleId} selectedDriverId={selectedDriverId} onClose={handleBack} />}
-                  {currentView === 'profile' && <ProfileView onClose={handleBack} />}
+                  {currentView === 'profile' && <ProfileView user={loggedInUser} onClose={handleBack} />}
                   {currentView === 'messages' && <MessagesView initialMessages={messages} onClose={handleBack} />}
               </div>
             </div>
