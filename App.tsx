@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import LeafletMap from './components/Map';
 import Analytics from './components/Analytics';
@@ -47,6 +47,11 @@ const App: React.FC = () => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [focusedLocation, setFocusedLocation] = useState<Coordinates | null>(null);
+
+  // Live Location Tracking
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [isTrackingLocation, setIsTrackingLocation] = useState<boolean>(false);
+  const locationWatchId = useRef<number | null>(null);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
@@ -102,6 +107,7 @@ const App: React.FC = () => {
   const handleVehicleSelect = (id: string) => {
     setSelectedVehicleId(id);
     setFocusedLocation(null);
+    if(isTrackingLocation) toggleLiveLocationTracking(); // Stop tracking if a vehicle is selected
     setViewHistory(prev => [...prev, currentView]);
     setCurrentView('map'); 
   };
@@ -166,6 +172,49 @@ const App: React.FC = () => {
     setIsNotificationsOpen(!isNotificationsOpen);
     if (isMenuOpen) setIsMenuOpen(false);
   };
+
+  const toggleLiveLocationTracking = () => {
+    if (isTrackingLocation) {
+        if (locationWatchId.current !== null) {
+            navigator.geolocation.clearWatch(locationWatchId.current);
+            locationWatchId.current = null;
+        }
+        setIsTrackingLocation(false);
+        setUserLocation(null);
+    } else {
+        if ('geolocation' in navigator) {
+            setSelectedVehicleId(null); // Deselect vehicle to focus on user
+            setFocusedLocation(null);   // Deselect search result
+            
+            locationWatchId.current = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setUserLocation({ lat: latitude, lng: longitude });
+                },
+                (error) => {
+                    console.error("Geolocation Error:", error);
+                    alert("Could not get your location. Please ensure you've granted permission.");
+                    setIsTrackingLocation(false);
+                    setUserLocation(null);
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+            setIsTrackingLocation(true);
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    }
+  };
+
+  useEffect(() => {
+    // Cleanup geolocation watch on component unmount
+    return () => {
+        if (locationWatchId.current !== null) {
+            navigator.geolocation.clearWatch(locationWatchId.current);
+        }
+    };
+  }, []);
+
 
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
   const unreadAlertCount = alerts.filter(a => !a.read).length;
@@ -324,6 +373,7 @@ const App: React.FC = () => {
               activeRoute={activeRoute}
               routeMarkers={routeMarkers}
               focusedLocation={focusedLocation}
+              userLocation={userLocation}
             />
             
             {/* Map Selection Overlay Hint */}
@@ -380,6 +430,24 @@ const App: React.FC = () => {
                 </div>
             </div>
           </div>
+          )}
+
+          {/* Map Controls */}
+          {currentView === 'map' && !mapSelectionMode && (
+            <div className="absolute top-24 right-5 z-40 pointer-events-auto">
+              <button
+                onClick={toggleLiveLocationTracking}
+                title={isTrackingLocation ? 'Stop live location tracking' : 'Track my live location'}
+                aria-label={isTrackingLocation ? 'Stop live location tracking' : 'Track my live location'}
+                className={`w-14 h-14 flex items-center justify-center rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 ${
+                  isTrackingLocation 
+                  ? 'bg-emerald-500 text-white animate-pulse' 
+                  : 'bg-white text-slate-700'
+                }`}
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+              </button>
+            </div>
           )}
 
           {/* MODULE VIEWS */}

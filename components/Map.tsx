@@ -13,6 +13,7 @@ interface MapProps {
   activeRoute?: Coordinates[] | null;
   routeMarkers?: { origin?: Coordinates, destination?: Coordinates } | null;
   focusedLocation?: Coordinates | null; // For global search
+  userLocation?: Coordinates | null; // For live tracking
 }
 
 const LeafletMap: React.FC<MapProps> = ({ 
@@ -23,13 +24,16 @@ const LeafletMap: React.FC<MapProps> = ({
   onMapClick,
   activeRoute,
   routeMarkers,
-  focusedLocation
+  focusedLocation,
+  userLocation
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null); // Leaflet map instance
   const markersRef = useRef<Map<string, any>>(new Map()); // Map vehicle IDs to markers
   const routeLayerRef = useRef<any>(null); // Polyline layer
   const routeMarkersRef = useRef<any[]>([]); // Origin/Dest markers
+  const userLocationMarkerRef = useRef<any>(null); // User's live location marker
+  const isInitialLocationTrack = useRef(true);
 
   // Initialize Map
   useEffect(() => {
@@ -190,19 +194,63 @@ const LeafletMap: React.FC<MapProps> = ({
 
   }, [activeRoute, routeMarkers]);
 
-  // Fly to selection (Vehicle or Global Search)
+  // Render User's Live Location
   useEffect(() => {
-    if (mapRef.current) {
-      if (selectedVehicleId) {
-        const vehicle = vehicles.find(v => v.id === selectedVehicleId);
-        if (vehicle) {
-          mapRef.current.flyTo([vehicle.location.lat, vehicle.location.lng], 16, { animate: true, duration: 1.2 });
+    const L = (window as any).L;
+    if (!L || !mapRef.current) return;
+
+    if (userLocation) {
+        const customIcon = L.divIcon({
+            className: 'user-location-icon',
+            html: `
+                <div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                    <div class="animate-ping" style="position: absolute; width: 100%; height: 100%; background-color: #3B82F6; opacity: 0.75; border-radius: 50%;"></div>
+                    <div style="background-color: #3B82F6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10;"></div>
+                </div>
+            `,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+
+        if (userLocationMarkerRef.current) {
+            userLocationMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
+        } else {
+            const marker = L.marker([userLocation.lat, userLocation.lng], { icon: customIcon, zIndexOffset: 2000 }).addTo(mapRef.current);
+            userLocationMarkerRef.current = marker;
         }
-      } else if (focusedLocation) {
-        mapRef.current.flyTo([focusedLocation.lat, focusedLocation.lng], 14, { animate: true, duration: 1.5 });
-      }
+    } else {
+        // Remove marker if userLocation is null (tracking stopped)
+        if (userLocationMarkerRef.current) {
+            userLocationMarkerRef.current.remove();
+            userLocationMarkerRef.current = null;
+        }
     }
-  }, [selectedVehicleId, vehicles, focusedLocation]);
+  }, [userLocation]);
+
+
+  // Fly/Pan to selection (User, Vehicle, or Global Search)
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (userLocation) {
+        if (isInitialLocationTrack.current) {
+            mapRef.current.flyTo([userLocation.lat, userLocation.lng], 16, { animate: true, duration: 1.5 });
+            isInitialLocationTrack.current = false;
+        } else {
+            mapRef.current.panTo([userLocation.lat, userLocation.lng], { animate: true, duration: 1.0 });
+        }
+    } else {
+        isInitialLocationTrack.current = true; // Reset for next time
+        if (selectedVehicleId) {
+            const vehicle = vehicles.find(v => v.id === selectedVehicleId);
+            if (vehicle) {
+                mapRef.current.flyTo([vehicle.location.lat, vehicle.location.lng], 16, { animate: true, duration: 1.2 });
+            }
+        } else if (focusedLocation) {
+            mapRef.current.flyTo([focusedLocation.lat, focusedLocation.lng], 14, { animate: true, duration: 1.5 });
+        }
+    }
+  }, [selectedVehicleId, vehicles, focusedLocation, userLocation]);
 
   return (
     <div ref={mapContainerRef} className="w-full h-full z-0 outline-none bg-slate-100"></div>
